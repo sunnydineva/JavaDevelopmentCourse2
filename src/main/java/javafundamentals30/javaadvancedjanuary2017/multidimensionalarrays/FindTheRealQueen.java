@@ -1,5 +1,7 @@
 package javafundamentals30.javaadvancedjanuary2017.multidimensionalarrays;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class FindTheRealQueen
@@ -39,58 +41,48 @@ public class FindTheRealQueen
     //q 1 q q 1 q q 1
     //4 4
 
+    public static ArrayList<Point> queens = new ArrayList<>();
+    public static String queen = "q";
+
     public static void main(String[] args)
     {
         Scanner sc = new Scanner(System.in);
         int dimension = 8;
+
         String[][] matrix = readMatrix(sc, dimension);
+        processAllQueens(dimension, matrix);
+        System.out.println(queens.get(0).x + " " + queens.get(0).y); //принтиране на координатите на истинската кралица
+        sc.close();
+    }
 
-        int queenRow;
-        int queenCol = 0;
-        int queenDiagonal = 0;
-
+    private static void processAllQueens(int dimension, String[][] matrix)
+    {
+        int queenRow = -1;
+        int queenCol = -1;
         for (int matrixRow = 0; matrixRow < dimension; matrixRow++)
         {
-            int isOneQueenOnTheRow = 0;
             for (int matrixCol = 0; matrixCol < dimension; matrixCol++)
             {
-                if (matrix[matrixRow][matrixCol].equals("q"))
+                if (matrix[matrixRow][matrixCol].equals(queen))
                 {
-                    if (isOneQueenOnTheRow >= 1) break;
-                    isOneQueenOnTheRow++;
+                    if (queenRow == matrixRow )
+                    {
+                        queens.remove(new Point(queenRow, queenCol));
+                        continue;  //there is a queen on the row
+                    }
+                    if (queenCol == matrixCol)
+                    {
+                        queens.remove(new Point(queenRow, queenCol));
+                        continue; //there is a queen on the column
+                    }
                     queenRow = matrixRow;
-
-                    if (queenCol == matrixCol) break; //there is a queen on the column
                     queenCol = matrixCol;
+                    queens.add(new Point(queenRow, queenCol));
 
-
-                    //isQueenOnTheDiagonals
-
-
-                    System.out.println(queenRow + " " + queenCol);
-                    //принтирм диагоналите на оставащите кралици
-                    printDiagonals(matrix, queenRow, queenCol);
-                    //2 2
-                    //p a q a p a q a
-                    //p a q a p
-                    //4 3
-                    //p a p q p a p
-                    //p a p q p a p a
-                    //6 2
-                    //p a q a
-                    //a q a p a q a
-
-
-                    //имам 3 кралици, обходих диагоналите им
-                   //остава да направя да ги трупа в масив и ако се повтаря - да го маха
-
+                    checkDiagonals(matrix, queenRow, queenCol); //маха от queens, ако се повтаря по диагонали
                 }
             }
-
         }
-
-
-        sc.close();
     }
 
     public static String[][] readMatrix(Scanner scanner, int dimension)
@@ -107,28 +99,38 @@ public class FindTheRealQueen
         return matrix;
     }
 
-    private static void printDiagonals(String[][] matrix, int queenRow, int queenCol)
+    private static void checkDiagonals(String[][] matrix, int queenRow, int queenCol)
     {
-
+        int queensOnBothDiagonals = 0;
         // Първи диагонал: от първия ред и колона до последния
-        for (int i =  Math.max(queenRow - queenCol, 0), j = Math.max(queenCol-queenRow, 0); i < matrix.length && j < matrix.length ; j++, i++)
+        for (int i = Math.max(queenRow - queenCol, 0), j = Math.max(queenCol - queenRow, 0); i < matrix.length && j < matrix.length; j++, i++)
         {
-            System.out.print(matrix[i][j] + " ");
-
-            if(matrix[i][j].equals("q"))
+            //System.out.print(matrix[i][j] + " "); //принт на целия диагонал
+            if (matrix[i][j].equals(queen))
             {
-
+                if (queensOnBothDiagonals > 1)
+                {
+                    queens.remove(new Point(queenRow, queenCol));
+                    return;
+                }
+                queensOnBothDiagonals++;
             }
         }
         System.out.println();
-
         // Втори диагонал: от последния ред и първа колона до първия ред и последна колона
-
-        for (int i = Math.min(queenRow + queenCol, matrix.length -1), j = queenRow+queenCol-i; i >= 0 && j < matrix.length; i--, j++)
+        for (int i = Math.min(queenRow + queenCol, matrix.length - 1), j = Math.max( queenRow + queenCol - i, 0); i >= 0 && j < matrix.length; i--, j++)
+       // for (int i = Math.min(queenRow + queenCol, matrix.length - 1), j =   Math.max(queenCol - (matrix.length - queenRow -1), 0) ; i >= 0 && j < matrix.length; i--, j++) //също работи
         {
-            System.out.print(matrix[i][Math.min(j, matrix.length)] + " ");
+            //System.out.print(matrix[i][j] + " ");  //принт на целия диагонал
+            if (matrix[i][j].equals(queen))
+            {
+                if (queensOnBothDiagonals > 1)
+                {
+                    queens.remove(new Point(queenRow, queenCol));
+                    return;
+                }
+                queensOnBothDiagonals++;
+            }
         }
-        System.out.println();
     }
-
 }
